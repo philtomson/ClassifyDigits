@@ -1,0 +1,20 @@
+Based on the "Digits Recognizer" Dojo here: https://github.com/c4fsharp/Dojo-Digits-Recognizer
+ 
+Which in turn is based on the Kaggle challenge here:
+http://www.kaggle.com/c/digit-recognizer
+
+I've implemented this as a KNN classifier (where K=1) as a means 
+of comparing multiple languages. 
+
+Currently the implementations are in:
+
+* F# (Parallel version)
+* OCaml
+  - classifyDigits.ml (non-parallelized version)
+  - classifyDigitsPar.ml (uses Parmap to parallelize)
+
+Also here:
+
+* times.txt - uses 'time' to determine how long it takes to run 
+  each version.
+
