@@ -18,3 +18,16 @@ Also here:
 * times.txt - uses 'time' to determine how long it takes to run 
   each version.
 
+* trainingsample.csv - 5000 labeled training examples. A csv file with Label -> Pixel vector mappings. Pixel vector is an unrolled 28x28 grayscale (0-255) values (784 gray scale values).
+* validationsample.csv - 500 labeled training examples. 
+
+
+Each program reads in the training samples and then compares each of the 500 validation samples against those 5000 trainging samples and returns the label associated with the closest match (the vector with the shortest distance from a training example).
+
+--------------------------------------------------------------
+Notes: 
+--------------------------------------------------------------
+
+* F# example was built in monodevelop 4.0 with F# 3.0
+* OCaml examples have build info at top of files.
+* Examples run on a Dell XPS 13 i7 (Haswell) laptop with 8GB RAM.
