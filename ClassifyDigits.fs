@@ -35,23 +35,35 @@ open System
 open System.IO
 
 type LabelPixels = { Label: int; Pixels: int[] }
-let slurp_file file = 
-   File.ReadAllLines(file).[1..] 
-   |> Array.map (fun line -> line.Split(','))  
-   |> Array.map (fun numline -> Array.map (fun (x:string) -> Convert.ToInt32(x)) numline)    
-   |> Array.map (fun line -> { Label= line.[0]; Pixels=line.[1..] })
-  
-let trainingset = slurp_file("/home/phil/devel/f_sharp/Dojo-Digits-Recognizer/Dojo/trainingsample.csv") 
+
+let slurp_file file =
+    // Read the lines of the file.
+    let fileLines = File.ReadAllLines file
+
+    // Create a new array which has one fewer elements than the number of lines in the input file,
+    // because we don't want to process the first line with the column headers.
+    // Parse the file line and use the resulting data to initialize the elements in the new array.
+    Array.init (fileLines.Length - 1) <| fun idx ->
+        // The code below is still not as efficient as it could be...
+        let values =
+            let line = fileLines.[idx + 1]
+            line.Split(',') |> Array.map Int32.Parse
+        { Label= values.[0]; Pixels=values.[1..] }
  
 // 6. COMPUTING DISTANCES
  
 // We need to compute the distance between images
 // Math reminder: the euclidean distance is
-// distance [ x1; y1; z1 ] [ x2; y2; z2 ] = 
+// distance [ x1; y1; z1 ] [ x2; y2; z2 ] =
 // sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2))
 
-let distance (p1: int[]) (p2: int[]) = 
-  Math.Sqrt (float(Array.sum (Array.map2 ( fun a b -> (pown (a-b) 2)) p1 p2) ))
+let distance (p1: int[]) (p2: int[]) =
+    let mutable sum = 0.0
+    let len = p1.Length
+    for i = 0 to len - 1 do
+        let diff = p1.[i] - p2.[i]
+        sum <- sum + float (diff * diff)
+    sqrt sum
  
  
 // 7. WRITING THE CLASSIFIER FUNCTION
@@ -62,10 +74,13 @@ let distance (p1: int[]) (p2: int[]) =
 // closest example in our sample, and predict
 // the value of that closest element.
  
-let classify (pixels: int[]) =
+let classify trainingSet (pixels: int[]) =
   //Array.map (fun x -> {Label= x.Label; Dist= (distance pixels x.Pixels )}) trainingset
-  fst (trainingset |> Array.Parallel.map (fun x -> (x.Label, (distance pixels x.Pixels ) ))
-                   |> Array.minBy (fun x -> snd x ))
+  trainingSet
+  |> Array.Parallel.map (fun x ->
+    x.Label, distance pixels x.Pixels)
+  |> Array.minBy snd
+  |> fst
  
 // 8. EVALUATING THE MODEL AGAINST VALIDATION DATA
  
@@ -80,11 +95,14 @@ let classify (pixels: int[]) =
 // whether your classifier returns the correct answer,
 // and compute the % correctly predicted.
 
-
-
-let _ = 
+let benchmark dataDirectory =
     Console.WriteLine("start...")
-    let validationsample = slurp_file("/home/phil/devel/f_sharp/Dojo-Digits-Recognizer/Dojo/validationsample.csv") 
-    let num_correct = (validationsample |> Array.Parallel.map (fun p -> if (classify p.Pixels ) = p.Label then 1 else 0)
-                                        |> Array.sum) 
-    Printf.printf "Percentage correct:%f\n" ((float(num_correct)/ (float(Array.length validationsample)))*100.0)
+    let validationSample = slurp_file (Path.Combine (dataDirectory, "validationsample.csv"))
+    let trainingSet = slurp_file (Path.Combine (dataDirectory, "trainingsample.csv"))
+    let num_correct =
+        validationSample
+        |> Array.Parallel.map (fun p -> if (classify trainingSet p.Pixels ) = p.Label then 1 else 0)
+        |> Array.sum
+    printfn "Percentage correct: %f" ((float num_correct / (float (Array.length validationSample))) * 100.0)
+
+do benchmark "/home/phil/devel/f_sharp/Dojo-Digits-Recognizer/Dojo/"
