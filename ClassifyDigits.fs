@@ -41,9 +41,7 @@ let slurp_file file =
    |> Array.map (fun numline -> Array.map (fun (x:string) -> Convert.ToInt32(x)) numline)    
    |> Array.map (fun line -> { Label= line.[0]; Pixels=line.[1..] })
   
-  
 let trainingset = slurp_file("/home/phil/devel/f_sharp/Dojo-Digits-Recognizer/Dojo/trainingsample.csv") 
-
  
 // 6. COMPUTING DISTANCES
  
@@ -90,5 +88,3 @@ let _ =
     let num_correct = (validationsample |> Array.Parallel.map (fun p -> if (classify p.Pixels ) = p.Label then 1 else 0)
                                         |> Array.sum) 
     Printf.printf "Percentage correct:%f\n" ((float(num_correct)/ (float(Array.length validationsample)))*100.0)
-    0
-

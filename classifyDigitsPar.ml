@@ -44,7 +44,7 @@ let slurp_file file =
    |> List.map (fun line -> { label= (List.hd line); pixels=(List.tl line) })
   
   
-let trainingset = slurp_file("/home/phil/devel/f_sharp/Dojo-Digits-Recognizer/Dojo/trainingsample.csv") 
+let trainingset = slurp_file("./trainingsample.csv") 
 
 (*
  
@@ -91,7 +91,7 @@ let classify (pixels: int list) =
 // and compute the % correctly predicted.
 *)
 
-let validationsample = slurp_file("/home/phil/devel/f_sharp/Dojo-Digits-Recognizer/Dojo/validationsample.csv") 
+let validationsample = slurp_file("./validationsample.csv") 
 let num_correct = 
   (Parmap.L validationsample) |> Parmap.parmap ~ncores:4 (fun p -> if (classify p.pixels ) = p.label then 1. else 0.) |> list_sum 
 
