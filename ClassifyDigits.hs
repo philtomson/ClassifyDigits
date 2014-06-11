@@ -19,9 +19,7 @@ slurpFile fp =
 
 distance :: UV.Vector Int -> UV.Vector Int -> Double
 distance p1 p2 =
-  sqrt (fromIntegral (UV.sum (UV.zipWith (\a b -> let d = a - b
-                                                  in d * d)
-                                         p1 p2)))
+  sqrt (fromIntegral (UV.sum (UV.zipWith (\a b -> (a - b) ^ 2) p1 p2)))
 
 classify :: Vector LabelPixels -> UV.Vector Int -> Int
 classify trainingSet pixels =
