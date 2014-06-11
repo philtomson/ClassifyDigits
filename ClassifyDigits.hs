@@ -1,5 +1,5 @@
 import           Data.Ord
-import           Data.Vector ((!))
+import           Data.Vector.Unboxed ((!))
 import           Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as UV
@@ -15,7 +15,7 @@ slurpFile fp =
      case decode HasHeader bytes of
        Left err -> error err
        Right rows -> return (V.map makeRow rows)
-  where makeRow row = LP (row ! 0) (UV.fromList (V.toList (V.drop 1 row)))
+  where makeRow row = LP (row ! 0) (UV.drop 1 row)
 
 distance :: UV.Vector Int -> UV.Vector Int -> Double
 distance p1 p2 =
