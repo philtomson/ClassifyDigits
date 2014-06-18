@@ -1,8 +1,5 @@
 import Base: sumabs2, LinAlg.BLAS.gemm!
  
-trainingfile = download("https://github.com/c4fsharp/Dojo-Digits-Recognizer/blob/1eb4297a49dbd82a952c1523f5413519b8f1d62a/Dojo/trainingsample.csv?raw=true")
-validationfile = download("https://github.com/c4fsharp/Dojo-Digits-Recognizer/blob/1eb4297a49dbd82a952c1523f5413519b8f1d62a/Dojo/validationsample.csv?raw=true")
- 
 function knn(tfile, vfile)
     (tdata, theader) = readcsv(tfile, Uint8, header = true) # if this errors, replace header with has_header
     (vdata, vheader) = readcsv(vfile, Uint8, header = true)
@@ -35,10 +32,7 @@ function knn(tfile, vfile)
 end
  
 # don't time the first run - otherwise should include compile time for static languages
-knn(trainingfile, validationfile)
-@time knn(trainingfile, validationfile)
-@time knn(trainingfile, validationfile)
-@time knn(trainingfile, validationfile)
- 
-rm(trainingfile)
-rm(validationfile)
+knn("trainingsample.csv", "validationsample.csv")
+@time knn("trainingsample.csv", "validationsample.csv")
+@time knn("trainingsample.csv", "validationsample.csv")
+@time knn("trainingsample.csv", "validationsample.csv")
