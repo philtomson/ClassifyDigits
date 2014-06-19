@@ -76,8 +76,7 @@ let array_fold_left2 f acc a1 a2 =
   iter acc 0
  
 let distance p1 p2 = 
-  sqrt 
-  @@ float_of_int 
+  float_of_int 
   @@ array_fold_left2 (fun acc a b -> let d = a - b in acc + d * d) 0 p1 p2
  
 (* 
