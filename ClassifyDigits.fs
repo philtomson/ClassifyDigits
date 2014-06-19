@@ -50,9 +50,14 @@ let trainingset = slurp_file("/home/phil/devel/f_sharp/Dojo-Digits-Recognizer/Do
 // distance [ x1; y1; z1 ] [ x2; y2; z2 ] = 
 // sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2))
 
-let distance (p1: int[]) (p2: int[]) = 
-  Math.Sqrt (float(Array.sum (Array.map2 ( fun a b -> (pown (a-b) 2)) p1 p2) ))
+//let distance (p1: int[]) (p2: int[]) = 
+//  Math.Sqrt (float(Array.sum (Array.map2 ( fun a b -> (pown (a-b) 2)) p1 p2) ))
  
+// distance implementation suggested by dfarmernv on reddit/r/fsharp 
+// advantage: only makes one pass over array
+let distance (p1: int[]) (p2: int[]) = 
+     Array.fold2 (fun acc a b -> (acc + (a-b) * (a-b))) 0 p1 p2 |> float |> Math.Sqrt
+    
  
 // 7. WRITING THE CLASSIFIER FUNCTION
  
