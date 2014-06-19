@@ -1,8 +1,8 @@
-(* OCaml version
+(* OCaml version submitted by @camlspotter
    compile with:
-    ocamlopt str.cmxa -o classifyDigits classifyDigits.ml 
+    ocamlopt str.cmxa -o classifyDigitsArray classifyDigitsArray.ml 
 *)
-
+ 
 (*
 // This F# dojo is directly inspired by the 
 // Digit Recognizer competition from Kaggle.com:
@@ -15,9 +15,9 @@
 // to recognize hand-written digits, and
 // evaluate the quality of our classifier
 // by looking at predictions on the validation data.
-
+ 
 *)
-
+ 
 let read_lines name : string list =
   let ic = open_in name in
   let try_read () =
@@ -28,7 +28,7 @@ let read_lines name : string list =
   loop []
   
 (*
-
+ 
 // Two data files are included in the same place you
 // found this script: 
 // trainingsample.csv, a file that contains 5,000 examples, and 
@@ -39,20 +39,21 @@ let read_lines name : string list =
 // 1. GETTING SOME DATA
  
 // First let's read the contents of "trainingsample.csv"
-
+ 
 *)
-
-type labelPixels = { label: int; pixels: int list }
+ 
+type labelPixels = { label: int; pixels: int array }
 let slurp_file file = 
-   List.tl (read_lines file) 
-   |> List.map (fun line -> Str.split (Str.regexp ",") line )  
-   |> List.map (fun numline -> List.map (fun (x:string) -> int_of_string x) numline)    
-   |> List.map (fun line -> { label= (List.hd line); pixels=(List.tl line) })
+  List.tl (read_lines file)
+  |> List.map (fun line -> Str.split (Str.regexp ",") line )  
+  |> List.map (fun numline -> List.map (fun (x:string) -> int_of_string x) numline)    
+  |> List.map (fun line -> 
+    { label= List.hd line; 
+      pixels= Array.of_list @@ List.tl line })
+  |> Array.of_list
   
-  
-  
-let trainingset = slurp_file("./trainingsample.csv") 
-
+let trainingset = slurp_file "./trainingsample.csv"
+ 
 (* 
 // 6. COMPUTING DISTANCES
  
@@ -61,13 +62,24 @@ let trainingset = slurp_file("./trainingsample.csv")
 // distance [ x1; y1; z1 ] [ x2; y2; z2 ] = 
 // sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2))
 *)
-
-let list_sum lst = List.fold_left (fun x acc -> x+acc) 0 lst
-
-let distance (p1: int list) (p2: int list) = 
-  sqrt (float_of_int (list_sum (List.map2 ( fun a b -> let diff = a-b in 
-                                           diff*diff ) p1 p2) ))
-
+ 
+let array_fold_left2 f acc a1 a2 =
+  let open Array in
+  let len = length a1 in
+  let rec iter acc i = 
+    if i = len then acc
+    else 
+      let v1 = unsafe_get a1 i in
+      let v2 = unsafe_get a2 i in
+      iter (f acc v1 v2) (i+1)
+  in
+  iter acc 0
+ 
+let distance p1 p2 = 
+  sqrt 
+  @@ float_of_int 
+  @@ array_fold_left2 (fun acc a b -> let d = a - b in acc + d * d) 0 p1 p2
+ 
 (* 
 // 7. WRITING THE CLASSIFIER FUNCTION
  
@@ -78,26 +90,15 @@ let distance (p1: int list) (p2: int list) =
 // the value of that closest element.
  
 *)
-
-let minBy f lst  = 
-  let smallest = ref (List.hd lst) in
-  List.iter (fun x -> if (f x) < (f !smallest) then smallest := x
-                          ) (List.tl lst) ;
-  !smallest ;;
-
-(*
-let minBy f lst =
-  let rec loop l acc =
-  match l with
-    [] -> acc
-  | x :: ll -> loop ll (if (f x) < (f acc) then x else acc) in
-  loop (List.tl lst) (List.hd lst)
-*)
-                        
-
-let classify (pixels: int list) =
-  fst ((List.map (fun (x: labelPixels) -> (x.label, (distance pixels x.pixels) )) trainingset)
-       |> minBy (fun x  -> snd x)  )
+ 
+let classify (pixels: int array) =
+  fst (
+    Array.fold_left (fun ((min_label, min_dist) as min) (x : labelPixels) ->
+      let dist = distance pixels x.pixels in
+      if dist < min_dist then (x.label, dist) else min) 
+      (max_int, max_float) (* a tiny hack *)
+      trainingset
+  )
  
 (*
 // 8. EVALUATING THE MODEL AGAINST VALIDATION DATA
@@ -113,8 +114,12 @@ let classify (pixels: int list) =
 // whether your classifier returns the correct answer,
 // and compute the % correctly predicted.
 *)
-
-let validationsample = slurp_file("./validationsample.csv") 
-let num_correct = (validationsample |> List.map (fun p -> if (classify p.pixels ) = p.label then 1 else 0) |> list_sum) 
-let _ = Printf.printf "Percentage correct:%f\n" ((float_of_int(num_correct)/. (float_of_int(List.length validationsample)))*.100.0)
-
+ 
+let validationsample = slurp_file "./validationsample.csv"
+ 
+let num_correct = 
+  Array.fold_left (fun sum p -> sum + if classify p.pixels = p.label then 1 else 0) 0 validationsample
+ 
+let _ = 
+  Printf.printf "Percentage correct:%f\n" 
+  @@ float_of_int num_correct /. float_of_int (Array.length validationsample) *.100.0
