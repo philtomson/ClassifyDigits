@@ -12,6 +12,7 @@ Currently the implementations are in:
 * OCaml
   - classifyDigits.ml (non-parallelized version)
   - classifyDigitsPar.ml (uses Parmap to parallelize)
+* C++
 
 Also here:
 

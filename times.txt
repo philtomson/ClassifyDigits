@@ -27,4 +27,17 @@
 	sys	0m42.811s
 
 
+5. C++ version:
+   compiled with: 
+   g++ -o classifyDigits classifyDigits.cpp -std=c++1z -O3
+
+   real	0m2.264s
+   user	0m2.264s
+   sys	0m0.000s
+
+   compiled with: clang++-5.0 -o classifyDigits classifyDigits.cpp -std=c++1z -O3
+   real	0m3.589s
+   user	0m3.577s
+   sys	0m0.012s
+   
 
