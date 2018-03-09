@@ -26,18 +26,23 @@
 	user	5m38.809s
 	sys	0m42.811s
 
+5. OCaml with Array instead of List (classifyDigitsArray):
 
-5. C++ version:
+  real	0m10.706s
+  user	0m10.640s
+  sys	  0m0.056s
+
+
+6. C++ version:
    compiled with: 
    g++ -o classifyDigits classifyDigits.cpp -std=c++1z -O3
 
-   real	0m2.264s
-   user	0m2.264s
+   real	0m5.265s
+   user	0m5.260s
    sys	0m0.000s
 
+   
+
    compiled with: clang++-5.0 -o classifyDigits classifyDigits.cpp -std=c++1z -O3
-   real	0m3.589s
-   user	0m3.577s
-   sys	0m0.012s
    
 
